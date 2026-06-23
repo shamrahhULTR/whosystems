@@ -36,10 +36,14 @@
     color:var(--accent-deep);margin-bottom:14px;
   }
   .calc h1{
-    font-size:clamp(31px,8.5vw,46px);line-height:1.02;font-weight:700;
+    font-size:clamp(31px,8.5vw,46px);line-height:1.1;font-weight:700;
     letter-spacing:-0.035em;margin-bottom:14px;color:var(--ink);
   }
-  .calc h1 .hl{background:linear-gradient(transparent 62%, var(--accent) 62%);padding:0 2px;}
+  .calc h1 .hl{
+    background:linear-gradient(transparent 50%, var(--accent) 50%, var(--accent) 84%, transparent 84%);
+    padding:0 3px;border-radius:3px;
+    -webkit-box-decoration-break:clone;box-decoration-break:clone;
+  }
   .calc .sub{font-size:16px;color:var(--muted-deep);max-width:46ch}
 
   .calc .card{
