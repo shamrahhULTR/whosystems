@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revenue Leak Calculator — See What Slow Follow-Up Costs You | Whosystems</title>
+<meta name="description" content="Free revenue leak calculator for contractors and local businesses. Plug in five numbers and see how much money slow lead response, thin reviews and no follow-up cost you every year — and how much Whosystems can recover.">
+
+<link rel="canonical" href="https://whosystem.com/revenue-leak-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Whosystems">
+<meta property="og:title" content="Revenue Leak Calculator — See the money leaking out of your business">
+<meta property="og:description" content="Five numbers. See exactly where your revenue leaks — and what it's worth to fix it.">
+<meta property="og:url" content="https://whosystem.com/revenue-leak-calculator/">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#F5F5F3">
+<script>(function(){try{var t=localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.setAttribute("data-theme",t)}catch(e){}})();</script>
+<link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg">
+<link rel="apple-touch-icon" href="/assets/img/mark.svg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Spline+Sans+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Whosystems Revenue Leak Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"url":"https://whosystem.com/revenue-leak-calculator/","description":"Estimate the annual revenue a local business loses to slow lead response, a thin online reputation, and missing follow-up."}</script>
+
+<style>
+  :root{ --mono:"Spline Sans Mono",ui-monospace,SFMono-Regular,Menlo,monospace; }
+
+  .calc{max-width:600px;margin:0 auto;padding:0 2px}
+
+  .calc .eyebrow-m{
+    font-family:var(--mono);font-size:11px;font-weight:600;
+    text-transform:uppercase;letter-spacing:0.14em;
+    color:var(--accent-deep);margin-bottom:14px;
+  }
+  .calc h1{
+    font-size:clamp(31px,8.5vw,46px);line-height:1.02;font-weight:700;
+    letter-spacing:-0.035em;margin-bottom:14px;color:var(--ink);
+  }
+  .calc h1 .hl{background:linear-gradient(transparent 62%, var(--accent) 62%);padding:0 2px;}
+  .calc .sub{font-size:16px;color:var(--muted-deep);max-width:46ch}
+
+  .calc .card{
+    margin-top:30px;background:var(--bg-card-soft);
+    border:1px solid var(--line);border-radius:22px;padding:22px 20px 8px;
+  }
+  .calc .field{padding:14px 0;border-bottom:1px solid var(--line)}
+  .calc .field:last-of-type{border-bottom:none}
+  .calc .field label{display:block;font-size:13px;font-weight:600;letter-spacing:-0.01em;margin-bottom:10px;color:var(--ink)}
+  .calc .field .hint{color:var(--muted-deep);font-weight:400}
+
+  .calc select, .calc input[type=number]{
+    width:100%;font-family:var(--font);font-size:16px;font-weight:600;
+    color:var(--ink);background:var(--bg);
+    border:1px solid var(--line);border-radius:12px;
+    padding:13px 14px;appearance:none;-webkit-appearance:none;
+  }
+  .calc select{
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' fill='none' stroke='%236B6F6C' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;
+  }
+  .calc .money-in{position:relative}
+  .calc .money-in span{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-weight:600;font-size:16px;color:var(--muted-deep);pointer-events:none}
+  .calc .money-in input{padding-left:28px}
+  .calc select:focus, .calc input:focus{outline:none;border-color:var(--accent-deep);box-shadow:0 0 0 3px rgba(155,225,93,.25)}
+  .calc input[type=number]{-moz-appearance:textfield}
+  .calc input::-webkit-outer-spin-button,.calc input::-webkit-inner-spin-button{-webkit-appearance:none}
+
+  .calc .slide-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+  .calc .slide-val{font-family:var(--mono);font-weight:700;font-size:18px;color:var(--ink)}
+  .calc input[type=range]{width:100%;height:34px;background:transparent;cursor:pointer;-webkit-appearance:none;appearance:none}
+  .calc input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:99px;background:var(--line)}
+  .calc input[type=range]::-moz-range-track{height:6px;border-radius:99px;background:var(--line)}
+  .calc input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:24px;height:24px;border-radius:50%;background:#0C0E0D;border:4px solid var(--accent);margin-top:-9px}
+  .calc input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#0C0E0D;border:4px solid var(--accent)}
+  .calc input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px rgba(155,225,93,.45)}
+
+  .calc .toggle{display:flex;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px}
+  .calc .toggle button{flex:1;font-family:var(--font);font-size:14px;font-weight:600;color:var(--muted-deep);background:transparent;border:none;border-radius:9px;padding:11px;cursor:pointer}
+  .calc .toggle button[aria-pressed=true]{background:#0C0E0D;color:#F5F5F3}
+
+  .calc .run{
+    width:100%;margin-top:18px;margin-bottom:6px;
+    font-family:var(--font);font-size:16px;font-weight:700;letter-spacing:-0.01em;
+    color:#F5F5F3;background:linear-gradient(180deg,#232623 0%,#0C0E0D 60%);
+    border:none;border-radius:99px;padding:17px;cursor:pointer;transition:transform .12s ease;
+  }
+  .calc .run:hover{transform:translateY(-1px)}
+  .calc .run:active{transform:translateY(0)}
+  .calc .run:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+  .calc #out{margin-top:14px}
+  .calc .hidden{display:none}
+  .calc .reveal-c{animation:rise .5s cubic-bezier(.16,.84,.44,1) both}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .calc .meter{background:#0C0E0D;color:#F5F5F3;border-radius:24px;padding:28px 24px 26px;margin-top:26px}
+  .calc .meter .lbl{font-family:var(--mono);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.14em;color:var(--accent);margin-bottom:12px}
+  .calc .meter .big{font-family:var(--mono);font-weight:700;letter-spacing:-0.02em;font-size:clamp(40px,12.5vw,66px);line-height:.98}
+  .calc .live{display:flex;align-items:center;gap:8px;margin-top:16px;font-family:var(--mono);font-size:14px;color:#9A9E99}
+  .calc .live .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;animation:pulse 1.4s ease-in-out infinite}
+  .calc .live b{color:#F5F5F3;font-weight:600}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .calc .chips{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+  .calc .chip{position:static;inset:auto;width:auto;animation:none;font-family:var(--mono);font-size:12px;font-weight:500;background:rgba(245,245,243,.08);border:1px solid rgba(245,245,243,.14);border-radius:99px;padding:7px 12px}
+  .calc .chip b{color:var(--accent);font-weight:600}
+
+  .calc .sec-h{font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted-deep);margin:30px 0 14px}
+  .calc .bar{margin-bottom:16px}
+  .calc .bar .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+  .calc .bar .name{font-size:14px;font-weight:600;color:var(--ink)}
+  .calc .bar .amt{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--ink)}
+  .calc .bar .track{height:10px;background:var(--line);border-radius:99px;overflow:hidden}
+  .calc .bar .fill{height:100%;background:var(--accent-deep);border-radius:99px;width:0;transition:width .9s cubic-bezier(.16,.84,.44,1)}
+  .calc .bar .fill::after{content:"";display:block;height:100%;width:4px;margin-left:auto;background:var(--accent)}
+
+  .calc .recover{margin-top:28px;border:1px solid var(--line);border-radius:22px;padding:22px 20px;background:var(--bg-card-soft)}
+  .calc .recover p{font-size:15px;color:var(--ink)}
+  .calc .recover .pop{font-family:var(--mono);font-weight:700;font-size:clamp(26px,7vw,34px);letter-spacing:-0.02em;display:block;margin:4px 0 10px;color:var(--ink)}
+  .calc .recover .pop em{font-style:normal;color:var(--accent-deep)}
+  .calc .recover .note{font-size:13px;color:var(--muted-deep);margin-top:12px}
+  .calc .recover .note b{color:var(--ink);font-weight:600}
+
+  .calc details{margin-top:18px}
+  .calc summary{font-family:var(--mono);font-size:12px;color:var(--muted-deep);cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:6px}
+  .calc summary::-webkit-details-marker{display:none}
+  .calc summary::before{content:"+";font-weight:700;color:var(--accent-deep)}
+  .calc details[open] summary::before{content:"–"}
+  .calc details p{font-size:13px;color:var(--muted-deep);margin-top:10px;line-height:1.55}
+
+  .calc .cta-c{margin-top:26px;background:var(--accent);border-radius:24px;padding:26px 22px}
+  .calc .cta-c h3{font-size:22px;font-weight:700;letter-spacing:-0.02em;margin-bottom:6px;color:#0C0E0D}
+  .calc .cta-c p{font-size:14px;color:#2C3A1C;margin-bottom:16px;max-width:40ch}
+  .calc .cta-c a{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-family:var(--font);font-size:15px;font-weight:700;color:#F5F5F3;background:#0C0E0D;border-radius:99px;padding:15px 22px;transition:transform .12s ease}
+  .calc .cta-c a:hover{transform:translateY(-1px)}
+  .calc .cta-c a:focus-visible{outline:3px solid #0C0E0D;outline-offset:3px}
+
+  .calc .foot-c{margin-top:30px;font-family:var(--mono);font-size:11px;color:var(--muted-deep);line-height:1.6}
+  .calc .foot-c b{color:var(--ink)}
+
+  @media (prefers-reduced-motion: reduce){
+    .calc *{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="nav" id="top">
+  <div class="nav__pill">
+    <a class="nav__brand" href="/" aria-label="Whosystems home">
+      <svg class="nav__mark" viewBox="0 0 96 96" fill="none" aria-hidden="true">
+        <rect width="96" height="96" rx="26" fill="#0C0E0D"/>
+        <path d="M21 36 L33.5 64 L47 40 L58.5 64 L71 31" stroke="#F5F5F3" stroke-width="9.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="76.5" cy="20.5" r="5.5" fill="#9BE15D"/>
+      </svg>
+      <span class="nav__word">whosystems</span>
+    </a>
+    <span class="nav__divider" aria-hidden="true"></span>
+    <button class="nav__theme js-theme" type="button" aria-label="Toggle dark mode">
+      <svg class="nav__theme-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <svg class="nav__theme-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    </button>
+    <a class="btn btn--dark btn--nav js-book" href="https://cal.com/rjonesshamrahh/15min">Book a Call</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero hero--page">
+    <div class="calc">
+      <p class="eyebrow-m">revenue leak teardown</p>
+      <h1>See the money <span class="hl">leaking</span> out of your business.</h1>
+      <p class="sub">Most local businesses lose more to slow follow-up and a thin reputation than they ever lose on price. Plug in five numbers and watch where it goes.</p>
+
+      <div class="card">
+        <div class="field">
+          <label for="trade">What trade are you in?</label>
+          <select id="trade">
+            <option value="roofing">Roofing</option>
+            <option value="hvac">HVAC</option>
+            <option value="plumbing">Plumbing</option>
+            <option value="electrical">Electrical</option>
+            <option value="remodeling">Remodeling</option>
+            <option value="other" selected>General contracting</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="job">Average job value <span class="hint">— what a closed job is worth to you</span></label>
+          <div class="money-in"><span>$</span><input id="job" type="number" inputmode="numeric" value="12000" min="0" step="500"></div>
+        </div>
+
+        <div class="field">
+          <label for="leads">New leads per month <span class="hint">— calls, forms, referrals</span></label>
+          <input id="leads" type="number" inputmode="numeric" value="50" min="0" step="1">
+        </div>
+
+        <div class="field">
+          <div class="slide-row">
+            <label for="close" style="margin:0">Your close rate</label>
+            <span class="slide-val" id="closeVal">40%</span>
+          </div>
+          <input id="close" type="range" min="5" max="80" value="40" step="1">
+        </div>
+
+        <div class="field">
+          <label for="speed">How fast do you reply to a brand-new lead?</label>
+          <select id="speed">
+            <option value="0.04">Under 5 minutes</option>
+            <option value="0.10">5 to 30 minutes</option>
+            <option value="0.18" selected>30 to 60 minutes</option>
+            <option value="0.25">1 to 24 hours</option>
+            <option value="0.34">More than a day</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="rev">How many Google reviews do you have?</label>
+          <select id="rev">
+            <option value="0.14">0 to 10</option>
+            <option value="0.09" selected>11 to 25</option>
+            <option value="0.05">26 to 50</option>
+            <option value="0.02">51 to 100</option>
+            <option value="0.01">100+</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Automated follow-up and 24/7 lead capture already running?</label>
+          <div class="toggle" id="sysToggle" role="group" aria-label="systems in place">
+            <button type="button" data-v="yes" aria-pressed="false">Yes, it's handled</button>
+            <button type="button" data-v="no" aria-pressed="true">No, not really</button>
+          </div>
+        </div>
+
+        <button class="run" id="run">Show me the leak</button>
+      </div>
+
+      <div id="out" class="hidden"></div>
+
+      <p class="foot-c">Estimates built from contractor lead-response and reputation benchmarks — you can never recover more leads than you're currently losing, and only a capped share of those losses is counted as fixable. Your numbers, your call.<br><br><b>whosystems</b> — AI sales infrastructure for the East Coast.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__top">
+      <a class="footer__brand" href="/" aria-label="Whosystems home">
+        <svg class="footer__mark" viewBox="0 0 96 96" fill="none" aria-hidden="true">
+          <rect width="96" height="96" rx="26" fill="#F5F5F3"/>
+          <path d="M21 36 L33.5 64 L47 40 L58.5 64 L71 31" stroke="#0C0E0D" stroke-width="9.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="76.5" cy="20.5" r="5.5" fill="#5CA92E"/>
+        </svg>
+        <span>whosystems</span>
+      </a>
+      <a class="footer__mail" href="mailto:hello@whosystem.com">hello@whosystem.com</a>
+    </div>
+    <nav class="footer__nav" aria-label="Footer">
+      <a href="/#build">What we build</a>
+      <a href="/#channels">Get found</a>
+      <a href="/#markets">Markets</a>
+      <a href="/revenue-leak-calculator/">Leak calculator</a>
+      <a href="/#faq">FAQ</a>
+      <a href="/careers/">Careers</a>
+    </nav>
+    <div class="footer__meta">
+      <p>© 2026 Whosystems. All rights reserved.</p>
+      <p class="footer__tag">Acquire customers on auto-pilot.</p>
+    </div>
+  </div>
+  <div class="footer__watermark" aria-hidden="true">whosystems</div>
+</footer>
+
+<script src="/assets/js/main.js" defer></script>
+<script>
+(function(){
+  var sysVal = "no";
+  var elapsedBase = null, raf = null, perSecond = 0;
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var usd0 = new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0});
+  var usd2 = new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",minimumFractionDigits:2,maximumFractionDigits:2});
+
+  var tradeWord = {roofing:"roofing jobs",hvac:"HVAC jobs",plumbing:"plumbing jobs",electrical:"electrical jobs",remodeling:"remodels",other:"jobs"};
+
+  var close = document.getElementById("close");
+  close.addEventListener("input",function(){ document.getElementById("closeVal").textContent = close.value + "%"; recalcIfOpen(); });
+
+  document.querySelectorAll("#sysToggle button").forEach(function(b){
+    b.addEventListener("click",function(){
+      sysVal = b.dataset.v;
+      document.querySelectorAll("#sysToggle button").forEach(function(x){ x.setAttribute("aria-pressed", x===b ? "true":"false"); });
+      recalcIfOpen();
+    });
+  });
+
+  ["trade","job","leads","speed","rev"].forEach(function(id){
+    document.getElementById(id).addEventListener("input", recalcIfOpen);
+  });
+
+  document.getElementById("run").addEventListener("click", function(){
+    render();
+    document.getElementById("out").scrollIntoView({behavior: reduce ? "auto":"smooth", block:"start"});
+  });
+
+  function recalcIfOpen(){
+    if(!document.getElementById("out").classList.contains("hidden")) render(true);
+  }
+
+  function model(){
+    var job = Math.max(0, +document.getElementById("job").value || 0);
+    var leads = Math.max(0, +document.getElementById("leads").value || 0);
+    var closeR = (+close.value || 0) / 100;
+    var speed = +document.getElementById("speed").value;
+    var rep = +document.getElementById("rev").value;
+    var follow = sysVal === "yes" ? 0 : 0.18;
+    var trade = document.getElementById("trade").value;
+
+    var rawSum = speed + rep + follow;
+    var capped = Math.min(rawSum, 0.55);
+    var scale = rawSum > 0 ? capped / rawSum : 0;
+
+    var lostPerMonth = leads * (1 - closeR);
+    var dealVal = lostPerMonth * job;
+
+    function cat(rate){ return dealVal * (rate * scale) * 12; }
+
+    var speed$ = cat(speed), rep$ = cat(rep), follow$ = cat(follow);
+    var annual = speed$ + rep$ + follow$;
+
+    return {job:job, leads:leads, closeR:closeR, trade:trade,
+            speed$:speed$, rep$:rep$, follow$:follow$, annual:annual,
+            capturedAnnual: leads*closeR*12*job, hasSystems: sysVal==="yes"};
+  }
+
+  function render(keepTicker){
+    var m = model();
+    var out = document.getElementById("out");
+    out.classList.remove("hidden");
+
+    var perDay = m.annual/365, perMonth = m.annual/12;
+    perSecond = m.annual/31536000;
+
+    var maxCat = Math.max(m.speed$, m.rep$, m.follow$, 1);
+    function pct(v){ return Math.max(v>0?6:0, Math.round(v/maxCat*100)); }
+
+    var rec = m.annual*0.40;
+    var recMonth = rec/12;
+    var sysCost = 3500;
+    var mult = recMonth/sysCost;
+
+    var recoverLine;
+    if(m.annual < (m.job*1.5) || m.annual <= 0){
+      recoverLine = "<p>You're running a tight operation — the fixable gap is small. The play here is squeezing the last bit of speed and proof out of your pipeline, not rebuilding it.</p>"+
+        "<span class=\"pop\">"+usd0.format(rec)+" <em>back / year</em></span>"+
+        "<p class=\"note\">Recovering even 40% of the leak. Worth a tune-up, not an overhaul.</p>";
+    } else {
+      recoverLine = "<p>Recovering even 40% of this puts</p>"+
+        "<span class=\"pop\">"+usd0.format(rec)+" <em>back in your pocket / year</em></span>"+
+        "<p class=\"note\">That's "+usd0.format(recMonth)+"/month in recovered work. "+
+        (mult>=1.5 ? "More than enough to cover the system that fixes it." : "Enough to cover the system that fixes it.")+
+        "</p>";
+    }
+
+    out.innerHTML =
+      '<div class="meter reveal-c">'+
+        '<div class="lbl">Estimated revenue leaking / year</div>'+
+        '<div class="big" id="bigNum">'+usd0.format(m.annual)+'</div>'+
+        (reduce ? '' :
+          '<div class="live"><span class="dot"></span><span><b id="liveNum">$0.00</b> slipped away since you opened this</span></div>')+
+        '<div class="chips">'+
+          '<span class="chip"><b>'+usd0.format(perDay)+'</b> / day</span>'+
+          '<span class="chip"><b>'+usd0.format(perMonth)+'</b> / month</span>'+
+          '<span class="chip">on '+ (tradeWord[m.trade]||"jobs") +' you already get</span>'+
+        '</div>'+
+      '</div>'+
+
+      '<div class="sec-h">Where it’s going</div>'+
+      bar("Slow lead response", m.speed$, pct(m.speed$))+
+      bar("Thin online reputation", m.rep$, pct(m.rep$))+
+      bar(m.hasSystems ? "Follow-up & after-hours capture" : "No follow-up or after-hours capture", m.follow$, pct(m.follow$))+
+
+      '<div class="recover reveal-c">'+recoverLine+'</div>'+
+
+      '<details><summary>How this is calculated</summary><p>'+
+        'Starts from the leads you don’t currently close ('+Math.round(m.leads*(1-m.closeR))+'/month at a '+Math.round(m.closeR*100)+'% close rate). '+
+        'A capped share of those lost leads is attributed to fixable operational gaps — reply speed, review depth, and follow-up — using contractor benchmarks. '+
+        'It never assumes you recover more than you’re already losing. Recovery shown at a conservative 40%.'+
+      '</p></details>'+
+
+      '<div class="cta-c reveal-c">'+
+        '<h3>Want us to plug it for you?</h3>'+
+        '<p>15 minutes. We’ll walk your exact pipeline and show you which leak to close first.</p>'+
+        '<a href="https://cal.com/rjonesshamrahh/15min" target="_blank" rel="noopener">Book a 15-minute teardown →</a>'+
+      '</div>';
+
+    requestAnimationFrame(function(){
+      var fills = out.querySelectorAll(".bar .fill");
+      fills.forEach(function(f){ f.style.width = f.dataset.pct + "%"; });
+    });
+
+    startTicker(keepTicker);
+  }
+
+  function bar(name, amt, pct){
+    return '<div class="bar"><div class="top"><span class="name">'+name+'</span>'+
+      '<span class="amt">'+usd0.format(amt)+'</span></div>'+
+      '<div class="track"><div class="fill" data-pct="'+pct+'"></div></div></div>';
+  }
+
+  function startTicker(keep){
+    if(reduce) return;
+    if(raf) cancelAnimationFrame(raf);
+    if(!keep || elapsedBase === null) elapsedBase = performance.now();
+    var node = document.getElementById("liveNum");
+    function tick(now){
+      var sec = (now - elapsedBase)/1000;
+      if(node) node.textContent = usd2.format(perSecond * sec);
+      raf = requestAnimationFrame(tick);
+    }
+    raf = requestAnimationFrame(tick);
+  }
+})();
+</script>
+</body>
+</html>

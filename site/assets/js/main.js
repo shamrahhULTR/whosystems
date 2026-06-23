@@ -5,7 +5,7 @@
    quotes and every "Book a Call" button on the page points there.
    Leave empty to keep buttons scrolling to the contact section.
    ------------------------------------------------------------ */
-const BOOKING_URL = "";
+const BOOKING_URL = "https://cal.com/rjonesshamrahh/15min";
 
 (function () {
   "use strict";

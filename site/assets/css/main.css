@@ -792,6 +792,77 @@ html[data-theme="dark"] .nav__theme-sun { display: none; }
   font-size: 1.02rem;
 }
 
+/* ============ Leak calculator promo ============ */
+
+.leakcta { padding: 56px 0 8px; }
+
+.leakcta__card {
+  padding: 32px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  overflow: hidden;
+}
+
+.leakcta__eyebrow {
+  font-family: var(--mono, "Spline Sans Mono", monospace);
+  font-size: .8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--accent-deep);
+  margin-bottom: 14px;
+}
+.leakcta__title {
+  font-size: clamp(1.7rem, 1.3rem + 2.2vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+.leakcta__sub {
+  margin: 14px 0 24px;
+  color: var(--muted-deep);
+  max-width: 42ch;
+}
+
+.leakcta__meter {
+  background: #0C0E0D;
+  color: #F5F5F3;
+  border-radius: 20px;
+  padding: 24px 22px;
+  align-self: stretch;
+}
+.leakcta__meter-lbl {
+  font-family: var(--mono, "Spline Sans Mono", monospace);
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: var(--accent);
+}
+.leakcta__meter-num {
+  font-family: var(--mono, "Spline Sans Mono", monospace);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 1.6rem + 5vw, 3.4rem);
+  letter-spacing: -0.02em;
+  margin: 10px 0 14px;
+  line-height: 1;
+}
+.leakcta__meter-live {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono, "Spline Sans Mono", monospace);
+  font-size: .82rem;
+  color: #9A9E99;
+}
+.leakcta__dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: leakpulse 1.4s ease-in-out infinite;
+}
+@keyframes leakpulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+
 /* ============ Accordion (process + faq) ============ */
 
 .process { padding: 72px 0 16px; }
@@ -1255,7 +1326,7 @@ html[data-theme="dark"] .nav__theme-sun { display: none; }
   html { scroll-behavior: auto; }
   .reveal { opacity: 1; translate: none; filter: none; transition: none; }
   .chip { animation: none; }
-  .eyebrow__dot { animation: none; }
+  .eyebrow__dot, .leakcta__dot { animation: none; }
   .marquee__track { animation-duration: 120s; }
   .btn, .acc__panel, .acc__icon::before, .acc__icon::after, .card { transition: none; }
   .btn::after { display: none; }
@@ -1289,6 +1360,16 @@ html[data-theme="dark"] .nav__theme-sun { display: none; }
   .case__body { padding: 36px; }
 
   .bigstats .container { grid-template-columns: repeat(3, 1fr); }
+
+  .leakcta__card {
+    flex-direction: row;
+    align-items: center;
+    padding: 48px 44px;
+  }
+  .leakcta__body { flex: 1.2; }
+  .leakcta__sub { margin-bottom: 0; }
+  .leakcta__body .btn { margin-top: 24px; }
+  .leakcta__meter { flex: 1; min-width: 260px; }
 
   .quotes__grid { grid-template-columns: repeat(3, 1fr); }
 
