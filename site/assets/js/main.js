@@ -1,22 +1,110 @@
 /* Whosystems — interactions */
 
 /* ------------------------------------------------------------
-   BOOKING_URL: paste your Calendly / Cal.com link between the
-   quotes and every "Book a Call" button on the page points there.
-   Leave empty to keep buttons scrolling to the contact section.
+   Lead capture: Book a Call CTAs scroll to #book. The form POSTs
+   JSON to /api/lead (Cloudflare Pages -> GoHighLevel). Optional
+   CAL_URL is offered only after a successful submit (or as a
+   mailto fallback when the API is down).
    ------------------------------------------------------------ */
-const BOOKING_URL = "https://cal.com/rjonesshamrahh/15min";
+const CAL_URL = "https://cal.com/rjonesshamrahh/15min";
+const LEAD_API = "/api/lead";
+const MAIL_FALLBACK = "mailto:hello@whosystem.com?subject=Book%20a%20call%20with%20Whosystems";
 
 (function () {
   "use strict";
 
-  if (BOOKING_URL) {
-    document.querySelectorAll(".js-book").forEach(function (a) {
-      a.href = BOOKING_URL;
-      a.target = "_blank";
-      a.rel = "noopener";
-    });
+  /* Keep .js-book pointing at #book (or /#book on subpages). */
+  document.querySelectorAll(".js-book").forEach(function (a) {
+    var href = a.getAttribute("href") || "";
+    if (href.indexOf("mailto:") === 0 || href.indexOf("cal.com") !== -1 || href.indexOf("http") === 0) {
+      a.href = (location.pathname === "/" || location.pathname === "/index.html") ? "#book" : "/#book";
+    }
+    a.removeAttribute("target");
+    a.removeAttribute("rel");
+  });
+
+  function setStatus(el, kind, msg) {
+    if (!el) return;
+    el.hidden = !msg;
+    el.textContent = msg || "";
+    el.className = "lead-form__status js-lead-status" + (kind ? " is-" + kind : "");
   }
+
+  function buildMailto(payload) {
+    var body = [
+      "Name: " + (payload.name || ""),
+      "Email: " + (payload.email || ""),
+      "Phone: " + (payload.phone || ""),
+      "Source: " + (payload.source || ""),
+      "",
+      payload.message || ""
+    ].join("\n");
+    return "mailto:hello@whosystem.com?subject=" + encodeURIComponent("Lead: " + (payload.source || "website")) +
+      "&body=" + encodeURIComponent(body);
+  }
+
+  async function submitLead(form) {
+    var status = form.querySelector(".js-lead-status");
+    var btn = form.querySelector(".lead-form__submit, button[type=\"submit\"]");
+    var fd = new FormData(form);
+    var payload = {
+      name: String(fd.get("name") || "").trim(),
+      email: String(fd.get("email") || "").trim(),
+      phone: String(fd.get("phone") || "").trim(),
+      message: String(fd.get("message") || "").trim(),
+      source: form.getAttribute("data-source") || "website"
+    };
+    if (!payload.email && !payload.phone) {
+      setStatus(status, "error", "Add an email or phone so we can reach you.");
+      return;
+    }
+    if (btn) { btn.disabled = true; }
+    setStatus(status, "pending", "Sending…");
+    try {
+      var res = await fetch(LEAD_API, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      var data = {};
+      try { data = await res.json(); } catch (e) {}
+      if (res.ok && data && data.ok) {
+        setStatus(status, "ok", "Got it. We'll follow up shortly." + (CAL_URL ? " Prefer a calendar link? Open the 15-minute slot." : ""));
+        form.reset();
+        if (CAL_URL && status) {
+          var a = document.createElement("a");
+          a.href = CAL_URL;
+          a.target = "_blank";
+          a.rel = "noopener";
+          a.className = "lead-form__cal";
+          a.textContent = "Open calendar";
+          status.appendChild(document.createTextNode(" "));
+          status.appendChild(a);
+        }
+        return;
+      }
+      var err = (data && data.error) || "send_failed";
+      if (err === "not_configured") {
+        setStatus(status, "error", "Inbox is warming up. Opening email as a backup…");
+      } else {
+        setStatus(status, "error", "Could not send just now. Opening email as a backup…");
+      }
+      window.location.href = buildMailto(payload);
+    } catch (e) {
+      setStatus(status, "error", "Network hiccup. Opening email as a backup…");
+      window.location.href = buildMailto(payload);
+    } finally {
+      if (btn) { btn.disabled = false; }
+    }
+  }
+
+  /* Event delegation so calculator (and other) forms injected later still work. */
+  document.addEventListener("submit", function (ev) {
+    var form = ev.target;
+    if (!form || !form.classList || !form.classList.contains("js-lead-form")) return;
+    ev.preventDefault();
+    submitLead(form);
+  });
 
   /* Light / dark mode toggle (initial theme is set inline in <head> to avoid flash) */
   var themeMeta = document.querySelector('meta[name="theme-color"]');
@@ -224,27 +312,28 @@ const BOOKING_URL = "https://cal.com/rjonesshamrahh/15min";
       });
     }
 
-    /* ---- Videos: desktop-only, data-saver aware, lazy ---- */
+    /* ---- Videos: desktop-only, data-saver aware, truly lazy ----
+       src is withheld entirely until the video approaches the viewport,
+       so first load ships zero video bytes on every device. */
     var allowVids = window.matchMedia("(min-width: 720px)").matches &&
       !(navigator.connection && navigator.connection.saveData);
-    document.querySelectorAll("video[data-src]").forEach(function (v) {
-      if (allowVids) v.src = v.getAttribute("data-src");
-    });
-
     var vids = document.querySelectorAll(".js-vid");
-    if ("IntersectionObserver" in window && vids.length) {
+    if (allowVids && "IntersectionObserver" in window && vids.length) {
       var vio = new IntersectionObserver(function (entries) {
         entries.forEach(function (en) {
           var v = en.target;
           if (en.isIntersecting) {
+            if (!v.src) v.src = v.getAttribute("data-src");
             var p = v.play();
             if (p && p.catch) p.catch(function () {});
-          } else {
+          } else if (v.src) {
             v.pause();
           }
         });
-      }, { rootMargin: "25% 0px" });
+      }, { rootMargin: "60% 0px" });
       vids.forEach(function (v) { vio.observe(v); });
+    } else if (allowVids) {
+      vids.forEach(function (v) { v.src = v.getAttribute("data-src"); });
     }
 
     /* ---- Magnetic buttons + card tilt (desktop pointers only) ---- */
@@ -315,4 +404,5 @@ const BOOKING_URL = "https://cal.com/rjonesshamrahh/15min";
       });
     });
   });
+
 })();
