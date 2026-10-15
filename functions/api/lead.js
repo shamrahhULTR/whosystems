@@ -1,16 +1,21 @@
 /**
- * Whosystems lead intake — Cloudflare Pages Function at POST /api/lead.
+ * Whosystems lead intake - Cloudflare Pages Function at POST /api/lead.
  *
  * Stores the submission in Supabase first, then sends an optional email
- * alert, then forwards to the CRM. The visitor gets a success response
+ * alert to LEAD_ALERT_TO, a short confirmation to the lead when email is
+ * present, then forwards to the CRM. The visitor gets a success response
  * once the row is stored. A CRM or email failure does not fail capture.
  *
  * Set these in the Cloudflare Pages project (Production). Never commit them.
  *   SUPABASE_URL
  *   SUPABASE_SERVICE_ROLE_KEY
- *   RESEND_API_KEY     optional alert
- *   LEAD_ALERT_TO      optional alert recipient (required for the alert to send)
- *   LEAD_ALERT_FROM    optional alert sender
+ *   RESEND_API_KEY     required for alert and confirmation mail
+ *   LEAD_ALERT_TO      alert recipient(s); comma-separated for dual delivery
+ *                      e.g. rj@whosystem.com,reakwonjones@outlook.com
+ *                      Default when unset: rj@whosystem.com
+ *   LEAD_ALERT_FROM    From for alert and confirmation; must stay on
+ *                      alerts.whosystem.com
+ *                      Default: WhoSystems <leads@alerts.whosystem.com>
  *   GHL_PIT            optional CRM token
  *   GHL_LOCATION_ID    optional CRM location
  *   GHL_WEBHOOK_URL    optional CRM webhook, used only when GHL_PIT is unset
@@ -110,12 +115,16 @@ async function saveLead(env, lead) {
 }
 
 function alertRecipients(raw) {
-  if (typeof raw !== "string") return [];
-  return raw
+  const value = typeof raw === "string" && raw.trim() ? raw : "rj@whosystem.com";
+  return value
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean)
     .slice(0, 5);
+}
+
+function mailFrom(env) {
+  return env.LEAD_ALERT_FROM || "WhoSystems <leads@alerts.whosystem.com>";
 }
 
 async function sendAlert(env, lead) {
@@ -135,7 +144,7 @@ async function sendAlert(env, lead) {
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        from: env.LEAD_ALERT_FROM || "Whosystems <leads@whosystem.com>",
+        from: mailFrom(env),
         to,
         subject: "New lead: " + who + " (" + source + ")",
         text,
@@ -146,6 +155,42 @@ async function sendAlert(env, lead) {
     await drain(res);
   } catch (e) {
     console.error("lead_alert_error", e && e.name ? e.name : "error");
+  }
+}
+
+async function sendConfirmation(env, lead) {
+  if (!env.RESEND_API_KEY || !lead.email) return;
+  const first = (lead.name || "").split(/\s+/).filter(Boolean)[0] || "";
+  const greeting = first ? "Hi " + first + "," : "Hi,";
+  const text = [
+    greeting,
+    "",
+    "Thanks for reaching out to WhoSystems. We got your info and someone from our team will follow up shortly.",
+    "",
+    "If you want to look around while you wait: https://whosystem.com",
+    "",
+    "WhoSystems",
+  ].join("\n");
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        authorization: "Bearer " + env.RESEND_API_KEY,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        from: mailFrom(env),
+        to: [lead.email],
+        reply_to: "rj@whosystem.com",
+        subject: "Got your info - WhoSystems",
+        text,
+      }),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) console.error("lead_confirm_failed", res.status);
+    await drain(res);
+  } catch (e) {
+    console.error("lead_confirm_error", e && e.name ? e.name : "error");
   }
 }
 
@@ -271,6 +316,7 @@ export async function onRequestPost({ request, env }) {
 
   const saved = await saveLead(env, lead);
   await sendAlert(env, lead);
+  await sendConfirmation(env, lead);
 
   let forwarded = false;
   try {
