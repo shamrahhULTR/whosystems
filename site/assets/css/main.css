@@ -694,6 +694,7 @@ html[data-theme="dark"] .nav__theme-sun { display: none; }
 .case { padding: 64px 0 24px; }
 
 .case__card {
+  display: block;
   margin-top: 40px;
   overflow: hidden;
   border-radius: var(--radius-lg);
@@ -1936,6 +1937,37 @@ html[data-theme="dark"] .grain { opacity: .08; }
 .js-tilt { transform-style: preserve-3d; will-change: transform; }
 
 .case__link { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+
+/* Square Foot card: real logo, contained, never scaled above its pixels */
+a.case__card--ext {
+  color: inherit;
+  text-decoration: none;
+}
+.case__media--logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 18px 18px 0;
+  padding: 32px 28px;
+  background: #F5F5F3;
+  border-radius: 22px;
+}
+.case__media--logo img {
+  width: auto;
+  height: auto;
+  max-width: min(100%, 280px);
+  max-height: 240px;
+  object-fit: contain;
+  border-radius: 0;
+}
+.case__visit { margin: 16px 0 0; font-weight: 600; }
+@media (min-width: 720px) {
+  .case__media--logo {
+    margin: 22px 12px 22px 22px;
+    padding: 40px 32px;
+    min-height: 280px;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .grain { display: none; }
