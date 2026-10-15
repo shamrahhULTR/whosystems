@@ -2,9 +2,8 @@
 
 /* ------------------------------------------------------------
    Lead capture: Book a Call CTAs scroll to #book. The form POSTs
-   JSON to /api/lead (Cloudflare Pages -> GoHighLevel). Optional
-   CAL_URL is offered only after a successful submit (or as a
-   mailto fallback when the API is down).
+   JSON to /api/lead. Optional CAL_URL is offered only after a
+   successful submit (or as a mailto fallback when the API is down).
    ------------------------------------------------------------ */
 const CAL_URL = "https://cal.com/rjonesshamrahh/15min";
 const LEAD_API = "/api/lead";
@@ -30,11 +29,41 @@ const MAIL_FALLBACK = "mailto:hello@whosystem.com?subject=Book%20a%20call%20with
     el.className = "lead-form__status js-lead-status" + (kind ? " is-" + kind : "");
   }
 
+  var UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"];
+
+  function captureUtms() {
+    var qs = new URLSearchParams(location.search);
+    var has = false;
+    UTM_KEYS.forEach(function (k) { if (qs.get(k)) has = true; });
+    if (!has) return;
+    var stored = {};
+    try { stored = JSON.parse(sessionStorage.getItem("ws_utm") || "{}") || {}; } catch (e) { stored = {}; }
+    UTM_KEYS.forEach(function (k) {
+      var v = qs.get(k);
+      if (v) stored[k] = String(v).trim().slice(0, 120);
+    });
+    try { sessionStorage.setItem("ws_utm", JSON.stringify(stored)); } catch (e) {}
+  }
+  captureUtms();
+
+  function utmPayload() {
+    var stored = {};
+    try { stored = JSON.parse(sessionStorage.getItem("ws_utm") || "{}") || {}; } catch (e) { stored = {}; }
+    var out = {};
+    UTM_KEYS.forEach(function (k) {
+      var fromUrl = new URLSearchParams(location.search).get(k);
+      var v = fromUrl || stored[k];
+      if (typeof v === "string" && v.trim()) out[k] = v.trim().slice(0, 120);
+    });
+    return out;
+  }
+
   function buildMailto(payload) {
     var body = [
       "Name: " + (payload.name || ""),
       "Email: " + (payload.email || ""),
       "Phone: " + (payload.phone || ""),
+      "Company: " + (payload.company || ""),
       "Source: " + (payload.source || ""),
       "",
       payload.message || ""
@@ -51,9 +80,13 @@ const MAIL_FALLBACK = "mailto:hello@whosystem.com?subject=Book%20a%20call%20with
       name: String(fd.get("name") || "").trim(),
       email: String(fd.get("email") || "").trim(),
       phone: String(fd.get("phone") || "").trim(),
+      company: String(fd.get("company") || "").trim(),
       message: String(fd.get("message") || "").trim(),
-      source: form.getAttribute("data-source") || "website"
+      source: form.getAttribute("data-source") || "website",
+      page: (location.origin + location.pathname + location.search).slice(0, 500)
     };
+    var utms = utmPayload();
+    UTM_KEYS.forEach(function (k) { if (utms[k]) payload[k] = utms[k]; });
     if (!payload.email && !payload.phone) {
       setStatus(status, "error", "Add an email or phone so we can reach you.");
       return;
