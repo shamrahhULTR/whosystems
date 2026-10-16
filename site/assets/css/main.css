@@ -1722,11 +1722,24 @@ html[data-theme="dark"] .grain { opacity: .08; }
 }
 
 /* gradient brand accent in the headline */
+/* solid fallback first; gradient only where text-clip is supported.
+   inline-block + -webkit-text-fill-color fixes iOS Safari blank text
+   inside animated/transformed parents. */
 .hl {
-  background: linear-gradient(92deg, #C9F59A 0%, #9BE15D 55%, #6DBE33 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  display: inline-block;
+  color: #9BE15D;
+  -webkit-text-fill-color: #9BE15D;
+}
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .hl {
+    background: linear-gradient(92deg, #C9F59A 0%, #9BE15D 55%, #6DBE33 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
 }
 
 /* ---- blueprint schematic ---- */
