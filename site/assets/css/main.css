@@ -1721,12 +1721,12 @@ html[data-theme="dark"] .grain { opacity: .08; }
   gap: 20px;
 }
 
-/* gradient brand accent in the headline */
+/* solid brand accent in the headline.
+   A clipped gradient (background-clip:text + color:transparent) is not
+   painted on the child spans main.js wraps each word in, so the word
+   disappears on iOS Safari. */
 .hl {
-  background: linear-gradient(92deg, #C9F59A 0%, #9BE15D 55%, #6DBE33 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #9BE15D;
 }
 
 /* ---- blueprint schematic ---- */
