@@ -1,5 +1,5 @@
 /* WHO Revenue Intelligence System. Booking URL lives here and in the hrefs. */
-var BOOKING_URL = "https://cal.com/rjonesshamrahh/15min";
+var BOOKING_URL = "https://link.whosystem.com/widget/bookings/revenue-call-15-min";
 (function () {
   var root = document.documentElement;
   document.querySelectorAll(".js-book").forEach(function (a) { a.href = BOOKING_URL; a.target = "_blank"; a.rel = "noopener"; });
