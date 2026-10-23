@@ -83,7 +83,10 @@ const MAIL_FALLBACK = "mailto:hello@whosystem.com?subject=Book%20a%20call%20with
       company: String(fd.get("company") || "").trim(),
       message: String(fd.get("message") || "").trim(),
       source: form.getAttribute("data-source") || "website",
-      page: (location.origin + location.pathname + location.search).slice(0, 500)
+      page: (location.origin + location.pathname + location.search).slice(0, 500),
+      sms_consent_care: fd.get("sms_consent_care") === "yes",
+      sms_consent_marketing: fd.get("sms_consent_marketing") === "yes",
+      consent_version: "sms-2026-10-22"
     };
     var utms = utmPayload();
     UTM_KEYS.forEach(function (k) { if (utms[k]) payload[k] = utms[k]; });

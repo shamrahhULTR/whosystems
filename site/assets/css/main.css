@@ -2948,3 +2948,19 @@ html:not([data-theme="dark"]) .case__media.case__media--logo {
   .pkgbox { max-width: 300px; }
   .dash__body { grid-template-columns: 92px 1fr; }
 }
+
+/* A2P 10DLC: SMS consent block (Oct 22, 2026) and footer legal line */
+.sms-consent { border: 0; padding: 0; margin: 14px 0 4px; min-width: 0; text-align: left; color: inherit; }
+.sms-consent__legend { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 8px; padding: 0; opacity: .75; }
+.sms-consent__opt { display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px; line-height: 1.5; margin: 0 0 10px; cursor: pointer; }
+.sms-consent__opt input { flex: 0 0 auto; width: 16px; height: 16px; margin: 2px 0 0; accent-color: #0C0E0D; cursor: pointer; }
+.sms-consent__links { font-size: 12px; line-height: 1.5; margin: 2px 0 0; opacity: .8; }
+.sms-consent__links a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.sms-consent--dark { color: rgba(252,252,250,.82); }
+.sms-consent--dark .sms-consent__opt input { accent-color: #9BE15D; }
+.sms-consent--calc { color: #2C3A1C; }
+.calc .cta-c .sms-consent__links a { display: inline; padding: 0; background: none; border-radius: 0; font-size: inherit; font-weight: inherit; color: inherit; text-decoration: underline; transition: none; }
+.calc .cta-c .sms-consent__links { max-width: none; }
+.sms-consent--light { color: var(--ink, #0C0E0D); }
+.footer__legal { flex: 1 0 100%; margin: 0; font-size: 13px; line-height: 1.5; }
+.footer__legal a { color: inherit; }
