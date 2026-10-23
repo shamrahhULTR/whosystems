@@ -234,7 +234,9 @@ h1, h2, h3, p, ul { margin: 0; }
 
 .btn--light {
   background: linear-gradient(180deg, #FFFFFF 0%, #ECECE8 100%);
-  color: var(--ink);
+  /* Fixed Ink, not var(--ink): --ink flips to near-white in dark mode,
+     which made the white pill's label invisible (Oct 22 2026). */
+  color: #0C0E0D;
   box-shadow: 0 1px 2px rgba(0,0,0,.2), 0 14px 30px -10px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.9);
 }
 .btn--light:hover { transform: translateY(-2px); }
@@ -1298,22 +1300,71 @@ html[data-theme="dark"] .nav__theme-sun { display: none; }
   margin-top: 4px;
   width: 100%;
   max-width: 280px;
+  opacity: 1;
+  -webkit-text-fill-color: currentColor;
 }
+/* Readable label in every state: default, hover, focus, disabled, sending, sent.
+   iOS Safari fades disabled buttons and can override text color, so pin both. */
+.btn--light.lead-form__submit,
+.btn--light.lead-form__submit:hover,
+.btn--light.lead-form__submit:focus,
+.btn--light.lead-form__submit:disabled {
+  color: #0C0E0D;
+  -webkit-text-fill-color: #0C0E0D;
+  opacity: 1;
+}
+.btn--dark.lead-form__submit:disabled {
+  color: #FCFCFA;
+  -webkit-text-fill-color: #FCFCFA;
+  opacity: 1;
+}
+.lead-form__submit:focus-visible {
+  outline: 3px solid #9BE15D;
+  outline-offset: 3px;
+}
+.lead-form__submit:disabled { transform: none; cursor: progress; }
+.lead-form__submit.is-sending .lead-form__spin {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: leadSpin .7s linear infinite;
+}
+@keyframes leadSpin { to { transform: rotate(360deg); } }
+.lead-form__submit.is-sent,
+.lead-form__submit.is-sent:hover,
+.lead-form__submit.is-sent:disabled {
+  background: #9BE15D;
+  color: #0C0E0D;
+  -webkit-text-fill-color: #0C0E0D;
+  cursor: default;
+  transform: none;
+  box-shadow: 0 1px 2px rgba(0,0,0,.2), 0 14px 30px -12px rgba(155,225,93,.45);
+}
+.lead-form__submit.is-sent svg { width: 20px; height: 20px; flex: 0 0 auto; }
 .lead-form__status {
   text-align: center;
-  font-size: .95rem;
+  font-size: 1rem;
+  line-height: 1.5;
   color: rgba(252,252,250,.75);
   min-height: 1.3em;
+  overflow-wrap: anywhere;
 }
+.lead-form__status b { color: #FCFCFA; font-weight: 700; }
+.lead-form--calc .lead-form__status b { color: #0C0E0D; }
 .lead-form__status.is-ok { color: var(--accent); }
 .lead-form__status.is-error { color: #FFB4A8; }
 .lead-form__status.is-pending { color: rgba(252,252,250,.55); }
 .lead-form__cal {
+  display: inline-block;
+  margin-top: 4px;
   color: var(--accent);
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+.lead-form--calc .lead-form__cal { color: #0C0E0D; text-decoration-color: #5CA92E; }
 .lead-form__mail {
   color: rgba(252,252,250,.65);
   text-decoration: underline;
