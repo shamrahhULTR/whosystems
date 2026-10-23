@@ -72,7 +72,29 @@ const MAIL_FALLBACK = "mailto:hello@whosystem.com?subject=Book%20a%20call%20with
       "&body=" + encodeURIComponent(body);
   }
 
+  /* Submit button states. The label is always readable (see .lead-form__submit
+     in main.css): default, sending, sent. */
+  var CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function setButton(btn, state) {
+    if (!btn) return;
+    if (!btn.getAttribute("data-label")) btn.setAttribute("data-label", btn.textContent.trim());
+    btn.classList.remove("is-sending", "is-sent");
+    if (state === "sending") {
+      btn.disabled = true;
+      btn.classList.add("is-sending");
+      btn.innerHTML = '<span class="lead-form__spin" aria-hidden="true"></span><span>Sending…</span>';
+    } else if (state === "sent") {
+      btn.disabled = true;
+      btn.classList.add("is-sent");
+      btn.innerHTML = CHECK_SVG + "<span>Request sent</span>";
+    } else {
+      btn.disabled = false;
+      btn.textContent = btn.getAttribute("data-label");
+    }
+  }
+
   async function submitLead(form) {
+    var sent = false;
     var status = form.querySelector(".js-lead-status");
     var btn = form.querySelector(".lead-form__submit, button[type=\"submit\"]");
     var fd = new FormData(form);
@@ -94,8 +116,8 @@ const MAIL_FALLBACK = "mailto:hello@whosystem.com?subject=Book%20a%20call%20with
       setStatus(status, "error", "Add an email or phone so we can reach you.");
       return;
     }
-    if (btn) { btn.disabled = true; }
-    setStatus(status, "pending", "Sending…");
+    setButton(btn, "sending");
+    setStatus(status, "pending", "Sending your request…");
     try {
       var res = await fetch(LEAD_API, {
         method: "POST",
@@ -105,18 +127,33 @@ const MAIL_FALLBACK = "mailto:hello@whosystem.com?subject=Book%20a%20call%20with
       var data = {};
       try { data = await res.json(); } catch (e) {}
       if (res.ok && data && data.ok) {
-        setStatus(status, "ok", "Got it. We'll follow up shortly." + (CAL_URL ? " Prefer a calendar link? Open the 15-minute slot." : ""));
-        form.reset();
-        if (CAL_URL && status) {
-          var a = document.createElement("a");
-          a.href = CAL_URL;
-          a.target = "_blank";
-          a.rel = "noopener";
-          a.className = "lead-form__cal";
-          a.textContent = "Open calendar";
-          status.appendChild(document.createTextNode(" "));
-          status.appendChild(a);
+        sent = true;
+        setButton(btn, "sent");
+        setStatus(status, "ok", "");
+        if (status) {
+          status.hidden = false;
+          var strong = document.createElement("b");
+          strong.textContent = "Got it. RJ will reach out within 1 business day.";
+          status.appendChild(strong);
+          if (payload.email) status.appendChild(document.createTextNode(" Check your inbox for a confirmation."));
+          if (CAL_URL) {
+            status.appendChild(document.createElement("br"));
+            status.appendChild(document.createTextNode("Rather not wait? "));
+            var a = document.createElement("a");
+            a.href = CAL_URL;
+            a.target = "_blank";
+            a.rel = "noopener";
+            a.className = "lead-form__cal";
+            a.textContent = "Book a 15-minute call";
+            status.appendChild(a);
+          }
         }
+        form.reset();
+        /* Editing the form again re-arms the button for a new request. */
+        form.addEventListener("input", function rearm() {
+          form.removeEventListener("input", rearm);
+          setButton(btn, "default");
+        });
         return;
       }
       var err = (data && data.error) || "send_failed";
@@ -130,7 +167,7 @@ const MAIL_FALLBACK = "mailto:hello@whosystem.com?subject=Book%20a%20call%20with
       setStatus(status, "error", "Network hiccup. Opening email as a backup…");
       window.location.href = buildMailto(payload);
     } finally {
-      if (btn) { btn.disabled = false; }
+      if (!sent) setButton(btn, "default");
     }
   }
 
