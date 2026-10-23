@@ -19,6 +19,12 @@
  *   GHL_PIT            optional CRM token
  *   GHL_LOCATION_ID    optional CRM location
  *   GHL_WEBHOOK_URL    optional CRM webhook, used only when GHL_PIT is unset
+ *
+ * SMS consent (A2P 10DLC, Oct 22 2026): the forms send sms_consent_care and
+ * sms_consent_marketing booleans. Checked boxes become GHL tags
+ * sms-consent-care / sms-consent-marketing (added with POST /contacts/{id}/tags,
+ * so existing tags are never replaced) plus a consent note with time, page,
+ * IP and wording version. Unchecked boxes add nothing. Supabase row unchanged.
  */
 
 const CRM_API = "https://services.leadconnectorhq.com";
@@ -194,6 +200,28 @@ async function sendConfirmation(env, lead) {
   }
 }
 
+function consentTags(lead) {
+  const tags = [];
+  if (lead.sms_consent_care) tags.push("sms-consent-care");
+  if (lead.sms_consent_marketing) tags.push("sms-consent-marketing");
+  return tags;
+}
+
+function consentNote(lead) {
+  const parts = [];
+  if (lead.sms_consent_care) parts.push("non-marketing (inquiry, appointments, support)");
+  if (lead.sms_consent_marketing) parts.push("marketing (offers, discounts, service updates)");
+  if (!parts.length) return "";
+  return [
+    "SMS consent given via web form checkbox: " + parts.join(" + "),
+    "Time (UTC): " + lead.consent_at,
+    "Page: " + (lead.page || "unknown"),
+    "Form source: " + lead.source,
+    "IP: " + (lead.consent_ip || "unknown"),
+    "Wording version: " + (lead.consent_version || "unknown"),
+  ].join("\n");
+}
+
 function attributionNote(lead) {
   const lines = [];
   if (lead.message) lines.push("[" + lead.source + "] " + lead.message);
@@ -261,6 +289,37 @@ async function forwardToCrm(env, lead) {
         console.error("crm_note_error", e && e.name ? e.name : "error");
       }
     }
+
+    const cTags = consentTags(lead);
+    if (contactId && cTags.length) {
+      try {
+        const tagRes = await fetch(CRM_API + "/contacts/" + contactId + "/tags", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ tags: cTags }),
+          signal: AbortSignal.timeout(8000),
+        });
+        if (!tagRes.ok) console.error("crm_consent_tags_failed", tagRes.status);
+        await drain(tagRes);
+      } catch (e) {
+        console.error("crm_consent_tags_error", e && e.name ? e.name : "error");
+      }
+      const cNote = consentNote(lead);
+      if (cNote) {
+        try {
+          const cRes = await fetch(CRM_API + "/contacts/" + contactId + "/notes", {
+            method: "POST",
+            headers,
+            body: JSON.stringify({ body: cNote }),
+            signal: AbortSignal.timeout(8000),
+          });
+          if (!cRes.ok) console.error("crm_consent_note_failed", cRes.status);
+          await drain(cRes);
+        } catch (e) {
+          console.error("crm_consent_note_error", e && e.name ? e.name : "error");
+        }
+      }
+    }
     return true;
   }
 
@@ -308,7 +367,14 @@ export async function onRequestPost({ request, env }) {
     utm_campaign: clean(body.utm_campaign, 120),
     utm_term: clean(body.utm_term, 120),
     utm_content: clean(body.utm_content, 120),
+    sms_consent_care: body.sms_consent_care === true,
+    sms_consent_marketing: body.sms_consent_marketing === true,
   };
+  if (lead.sms_consent_care || lead.sms_consent_marketing) {
+    lead.consent_version = clean(body.consent_version, 40);
+    lead.consent_at = new Date().toISOString();
+    lead.consent_ip = clean(request.headers.get("cf-connecting-ip") || "", 64);
+  }
 
   if (!lead.email && !lead.phone) {
     return json({ ok: false, error: "contact_required" }, 400);
