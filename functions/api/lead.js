@@ -229,7 +229,94 @@ function button(href, label) {
   return `<table role="presentation" class="wsbtn" cellpadding="0" cellspacing="0" border="0" style="margin:4px 0 16px"><tr><td bgcolor="#0C0E0D" style="background:#0C0E0D;border-radius:999px"><a href="${esc(href)}" style="display:inline-block;padding:15px 30px;font-family:${FONT};font-size:17px;font-weight:700;line-height:1.2;color:#F5F5F3;text-decoration:none;border-radius:999px;background:#0C0E0D">${esc(label)}</a></td></tr></table>`;
 }
 
+// Waitlist signups (source contains "waitlist") get an automatic confirmation:
+// no personal review, call or reply-time promise. Join links go straight to the
+// live Stripe payment links with the email prefilled. No prices, no urgency.
+const JOIN_ROOMS = {
+  "operator-network": { label: "Operator Network", button: "Join the Operator Network", url: "https://buy.stripe.com/00w3cv7EVdVYdWg5dtaAw0k" },
+  "closing-lab": { label: "The Closing Lab", button: "Join The Closing Lab", url: "https://buy.stripe.com/9B6dR9e3jbNQ6tO6hxaAw0x" },
+};
+
+export function isWaitlistSource(source) {
+  return /waitlist/i.test(String(source || ""));
+}
+
+export function waitlistRooms(source) {
+  const s = String(source || "").toLowerCase();
+  if (s.includes("operator-network")) return ["operator-network"];
+  if (s.includes("closing-lab")) return ["closing-lab"];
+  return ["operator-network", "closing-lab"];
+}
+
+function joinUrl(base, email) {
+  return validEmail(email) ? base + "?prefilled_email=" + encodeURIComponent(email) : base;
+}
+
+export function buildWaitlistConfirmationEmail(lead, opts) {
+  const o = opts || {};
+  const first = properFirstName(lead.name);
+  const rooms = waitlistRooms(lead.source).map((k) => JOIN_ROOMS[k]);
+  const roomNames = rooms.map((r) => r.label).join(" and ");
+  const subject = (o.subjectPrefix || "") + (first ? first + ", you're on the list" : "You're on the list");
+  const preheader = "You're on the list for " + roomNames + ". Join links inside.";
+  const telHref = "tel:" + PHONE_TEL;
+
+  const recap = [
+    ["Name", oneLine(lead.name, 120)],
+    ["Email", oneLine(lead.email, 200)],
+    ["Phone", oneLine(lead.phone, 40)],
+    ["Note", oneLine(lead.message, 300)],
+  ].filter(([, v]) => v);
+
+  const body = [
+    P(esc(first ? "Hey " + first + "," : "Hey there,")),
+    `<p class="wstext wsh1" style="margin:0 0 16px;font-family:${FONT};font-size:28px;line-height:1.2;font-weight:700;letter-spacing:-0.02em;color:#0C0E0D">You're on the list.</p>`,
+    P("You're on the list for " + esc(roomNames) + ". Room details and updates come to this email address."),
+    P("<b>Want in now?</b> You can join directly:", ";margin-bottom:12px"),
+    rooms.map((r) => button(joinUrl(r.url, lead.email), r.button)).join("\n"),
+    `<p class="wsmute" style="margin:18px 0 18px;font-family:${FONT};font-size:15px;line-height:1.55;color:#5D625F"><b class="wstext" style="color:#0C0E0D">Why me?</b> I'm a salesperson first, not a software company. I've sold in roofing, cars, finance and telecom, and trained sales teams and managers across the country. I build what I'd want running my own pipeline.</p>`,
+    P("RJ Jones<br>WhoSystems"),
+    recap.length
+      ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0 0;border-top:1px solid #E3E4E1"><tr><td style="padding:14px 0 0">
+<p class="wsmute" style="margin:0 0 6px;font-family:${FONT};font-size:12px;line-height:1.5;letter-spacing:.06em;text-transform:uppercase;color:#5D625F">What you sent</p>
+${recap.map(([k, v]) => `<p class="wsmute" style="margin:0 0 2px;font-family:${FONT};font-size:14px;line-height:1.5;color:#5D625F"><b>${esc(k)}:</b> ${esc(v)}</p>`).join("\n")}
+</td></tr></table>`
+      : "",
+  ].join("\n");
+
+  const footer = `<p class="wsfoothd" style="margin:0;font-weight:700;font-size:13px;color:#0C0E0D">RJ Jones, WhoSystems</p>
+<p class="wsfoot" style="margin:2px 0 0;color:#5D625F">${LEGAL_LINE}<br>${ADDRESS_LINE}<br><a href="${telHref}" style="color:#5D625F;text-decoration:none">${PHONE_DISPLAY}</a> &middot; <a href="${SITE_URL}" style="color:#5D625F;text-decoration:none">whosystem.com</a></p>
+<p class="wsfoot" style="margin:12px 0 0;color:#5D625F">You're getting this because you joined the waitlist at whosystem.com. Questions? Just reply.</p>`;
+
+  const text = [
+    first ? "Hey " + first + "," : "Hey there,",
+    "",
+    "You're on the list.",
+    "",
+    "You're on the list for " + roomNames + ". Room details and updates come to this email address.",
+    "",
+    "Want in now? You can join directly:",
+    ...rooms.map((r) => r.button + ": " + joinUrl(r.url, lead.email)),
+    "",
+    "Why me? I'm a salesperson first, not a software company. I've sold in roofing, cars, finance and telecom, and trained sales teams and managers across the country. I build what I'd want running my own pipeline.",
+    "",
+    "RJ Jones",
+    "WhoSystems",
+    "",
+    recap.length ? "What you sent:\n" + recap.map(([k, v]) => k + ": " + v).join("\n") + "\n" : "",
+    "--",
+    LEGAL_LINE,
+    ADDRESS_LINE,
+    PHONE_DISPLAY + " | whosystem.com",
+    "You're getting this because you joined the waitlist at whosystem.com. Questions? Just reply.",
+  ].filter((l, i, a) => !(l === "" && a[i - 1] === "")).join("\n");
+
+  const html = shell({ title: subject, preheader, body, footer, logoUrl: o.logoUrl });
+  return { subject, html, text };
+}
+
 export function buildConfirmationEmail(lead, opts) {
+  if (isWaitlistSource(lead.source)) return buildWaitlistConfirmationEmail(lead, opts);
   const o = opts || {};
   const first = properFirstName(lead.name);
   const subject = (o.subjectPrefix || "") + (first ? first + ", got it. Here's what happens next" : "Got it. Here's what happens next");
@@ -312,6 +399,7 @@ export function buildAlertEmail(lead, opts) {
   const who = oneLine(lead.name || lead.email || lead.phone || "website", 120);
   const source = oneLine(lead.source || "website", 60);
   const first = properFirstName(lead.name) || "them";
+  const waitlist = isWaitlistSource(lead.source);
   const subject = (o.subjectPrefix || "") + "New lead: " + who + " (" + source + ")";
   const rows = ALERT_LABELS.filter(([k]) => lead[k]).map(([k, label]) => [label, String(lead[k])]);
   const sms = [];
@@ -336,7 +424,9 @@ ${rows.map(([k, v]) => `<tr><td class="wsmute" valign="top" style="padding:8px 1
   const body = [
     `<p class="wsmute" style="margin:0 0 6px;font-family:${FONT};font-size:12px;line-height:1.5;letter-spacing:.08em;text-transform:uppercase;color:#5CA92E;font-weight:700">New lead &middot; ${esc(source)}</p>`,
     `<p class="wstext wsh1" style="margin:0 0 6px;font-family:${FONT};font-size:28px;line-height:1.2;font-weight:700;letter-spacing:-0.02em;color:#0C0E0D">${esc(who)}</p>`,
-    P((lead.email ? "They got your confirmation email. " : "") + "Promise made: you reach out within 1 business day. Fastest reply wins.", ";font-size:15px;color:#5D625F"),
+    P(waitlist
+      ? (lead.email ? "They got the automatic waitlist confirmation with direct join links. " : "") + "Waitlist signup: no personal reach-out was promised."
+      : (lead.email ? "They got your confirmation email. " : "") + "Promise made: you reach out within 1 business day. Fastest reply wins.", ";font-size:15px;color:#5D625F"),
     actions.join(""),
     table,
     lead.email ? P("Reply to this email to answer them directly.", ";font-size:14px;color:#5D625F") : "",
@@ -348,7 +438,9 @@ ${rows.map(([k, v]) => `<tr><td class="wsmute" valign="top" style="padding:8px 1
     "",
     ...rows.map(([k, v]) => k + ": " + v),
     "",
-    "Promise made in their confirmation: you reach out within 1 business day.",
+    waitlist
+      ? "Waitlist signup: they got the automatic confirmation with direct join links. No personal reach-out was promised."
+      : "Promise made in their confirmation: you reach out within 1 business day.",
     lead.email ? "Reply to this email to answer them directly." : "",
   ].join("\n");
   const html = shell({ title: subject, preheader: "New lead: " + who + " (" + source + ")", body, footer, logoUrl: o.logoUrl });
