@@ -254,7 +254,7 @@ export function buildConfirmationEmail(lead, opts) {
     P("<b>Rather not wait?</b> Grab a time on my calendar.", ";margin-bottom:12px"),
     button(BOOK_URL, "Book a 15-minute call"),
     P(`Or call or text me: <a class="wslink" href="${telHref}" style="${LINK};white-space:nowrap;font-weight:700">${PHONE_DISPLAY}</a>`),
-    `<p class="wsmute" style="margin:18px 0 18px;font-family:${FONT};font-size:15px;line-height:1.55;color:#5D625F"><b class="wstext" style="color:#0C0E0D">Why me?</b> I'm a salesperson first, not a software company. $35M+ in career sales. I build what I'd want running my own pipeline.</p>`,
+    `<p class="wsmute" style="margin:18px 0 18px;font-family:${FONT};font-size:15px;line-height:1.55;color:#5D625F"><b class="wstext" style="color:#0C0E0D">Why me?</b> I'm a salesperson first, not a software company. I've sold in roofing, cars, finance and telecom, and trained sales teams and managers across the country. I build what I'd want running my own pipeline.</p>`,
     P("Talk soon,<br><b>RJ Jones</b><br>WhoSystems"),
     recap.length
       ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0 0;border-top:1px solid #E3E4E1"><tr><td style="padding:14px 0 0">
@@ -282,7 +282,7 @@ ${recap.map(([k, v]) => `<p class="wsmute" style="margin:0 0 2px;font-family:${F
     "",
     "Or call or text me: " + PHONE_DISPLAY,
     "",
-    "Why me? I'm a salesperson first, not a software company. $35M+ in career sales. I build what I'd want running my own pipeline.",
+    "Why me? I'm a salesperson first, not a software company. I've sold in roofing, cars, finance and telecom, and trained sales teams and managers across the country. I build what I'd want running my own pipeline.",
     "",
     "Talk soon,",
     "RJ Jones",
